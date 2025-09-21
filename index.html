@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Zulema</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d0d0d; /* Un negro ligeramente más suave */
+        }
+        /* El canvas es el lienzo donde dibujaremos la animación */
+        #animation-canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="animation-canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('animation-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ajustar el tamaño del canvas a la ventana completa
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // --- Parámetros de la Animación ---
+        const text = 'ZULEMA';
+        const particleCount = 40; // Número de palabras "ZULEMA" en pantalla
+        const particles = [];
+        
+        // Objeto para cada partícula de texto
+        function Particle(x, y) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 1.5; // Velocidad horizontal aleatoria
+            this.vy = (Math.random() - 0.5) * 1.5; // Velocidad vertical aleatoria
+            this.size = Math.random() * 15 + 20; // Tamaño de fuente aleatorio
+            this.hue = Math.random() * 50 + 290; // Tonos de rosa y morado
+        }
+
+        // Crear las partículas iniciales en posiciones aleatorias
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
+        }
+
+        function animate() {
+            // Este es el truco para el efecto de "rastro" o "eco"
+            // Se dibuja un rectángulo negro semi-transparente sobre toda la pantalla en cada fotograma.
+            ctx.fillStyle = 'rgba(13, 13, 13, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Mover y dibujar cada partícula
+            particles.forEach(p => {
+                // Dibujar el texto
+                ctx.font = `bold ${p.size}px sans-serif`;
+                ctx.fillStyle = `hsl(${p.hue}, 100%, 70%)`; // Color usando HSL para tonos vibrantes
+                ctx.fillText(text, p.x, p.y);
+
+                // Actualizar posición
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Si la partícula se sale de la pantalla, la reubicamos al otro lado
+                if (p.x > canvas.width + p.size * 4) p.x = -p.size * 4;
+                if (p.x < -p.size * 4) p.x = canvas.width + p.size * 4;
+                if (p.y > canvas.height + p.size) p.y = -p.size;
+                if (p.y < -p.size) p.y = canvas.height + p.size;
+            });
+            
+            // Llama a la función 'animate' para el siguiente fotograma, creando un bucle infinito
+            requestAnimationFrame(animate);
+        }
+
+        // Iniciar la animación
+        animate();
+
+        // Ajustar el canvas si cambia el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
